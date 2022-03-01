@@ -6,7 +6,7 @@ As operators often create their own resources, outside of the control of infrast
 
 This container, which can be used as a deployment or a job, automates this task by:
  - creating a [Secret](https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/) with proper `.dockerconfigjson` content
- - iterating over [ServiceAccount](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-image-pull-secret-to-service-account) object and create or add a proper `imagePullSecrets` stanza
+ - iterating over [ServiceAccount](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-image-pull-secret-to-service-account) object and create or add a proper `imagePullSecrets` list item
  - iterate over crashloop pods with failure reasons `ImagePullBackOff` or `ErrImagePull` and schedule them for recreation by deleting them
 
 These steps are executed in a loop and can apply to a list of namespaces you define. 
@@ -28,7 +28,7 @@ time:
   runtime: 60
 ```
 
-The total `runtime` can be configured in seconds. Setting the runtime to `0` will cause an infite while true loop. The interval configures the waiting time between iterations of the loop described. Once the runtime time has exceeded, the process will exit with code 0.
+The total `runtime` can be configured in seconds. Setting the runtime to `0` will cause an infite _while true_ loop. The interval configures the waiting time between iterations of the loop described. Once the runtime time has exceeded, the process will exit with code 0.
 
 ## Build
 
