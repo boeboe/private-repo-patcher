@@ -1,0 +1,13 @@
+---
+namespaces:
+  - default
+  - test
+registry:
+  email: bartvanbos@gmail.com
+  host: harbor.example.com/boeboe
+  password: Boeboe@harbor123!
+  pullSecretName: private-registry-secret
+  username: admin
+time:
+  interval: 10
+  runtime: 60

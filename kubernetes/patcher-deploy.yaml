@@ -1,0 +1,104 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: private-repo-patcher
+  namespace: private-repo-patcher
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: private-repo-patcher
+rules:
+  - apiGroups:
+      - ''
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - delete
+  - apiGroups:
+      - ''
+    resources:
+      - namespaces
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - ''
+    resources:
+      - secrets
+    verbs:
+      - get
+      - list
+      - create
+  - apiGroups:
+      - ''
+    resources:
+      - serviceaccounts
+    verbs:
+      - get
+      - list
+      - patch
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: private-repo-patcher
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: private-repo-patcher
+subjects:
+  - kind: ServiceAccount
+    name: private-repo-patcher
+    namespace: private-repo-patcher
+---
+apiVersion: v1
+data:
+  config.yaml: |
+    namespaces:
+      - default
+      - test
+    registry:
+      email: bartvanbos@gmail.com
+      host: harbor.example.com/boeboe
+      password: Boeboe@harbor123!
+      pullSecretName: private-registry-secret
+      username: admin
+    time:
+      interval: 10
+      runtime: 60
+kind: ConfigMap
+metadata:
+  name: private-repo-patcher
+  namespace: private-repo-patcher
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: private-repo-patcher
+  namespace: private-repo-patcher
+spec:
+  containers:
+    - env:
+        - name: CONF_FILE
+          value: /etc/patcher/config.yaml
+      image: boeboe/private-repo-patcher:0.1.0
+      imagePullPolicy: Always
+      name: private-repo-patcher
+      resources:
+        limits:
+          cpu: 250m
+          memory: 128Mi
+      volumeMounts:
+        - mountPath: /etc/patcher
+          name: patcher-config
+          readOnly: true
+  restartPolicy: OnFailure
+  serviceAccountName: private-repo-patcher
+  volumes:
+    - configMap:
+        name: private-repo-patcher
+      name: patcher-config
