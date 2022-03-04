@@ -75,30 +75,39 @@ metadata:
   name: private-repo-patcher
   namespace: private-repo-patcher
 ---
-apiVersion: v1
-kind: Pod
+apiVersion: apps/v1
+kind: Deployment
 metadata:
   name: private-repo-patcher
   namespace: private-repo-patcher
 spec:
-  containers:
-    - env:
-        - name: CONF_FILE
-          value: /etc/patcher/config.yaml
-      image: boeboe/private-repo-patcher:0.1.0
-      imagePullPolicy: Always
-      name: private-repo-patcher
-      resources:
-        limits:
-          cpu: 250m
-          memory: 128Mi
-      volumeMounts:
-        - mountPath: /etc/patcher
+  replicas: 1
+  selector:
+    matchLabels:
+      app: private-repo-patcher
+  template:
+    metadata:
+      labels:
+        app: private-repo-patcher
+    spec:
+      containers:
+        - env:
+            - name: CONF_FILE
+              value: /etc/patcher/config.yaml
+          image: boeboe/private-repo-patcher:0.1.0
+          imagePullPolicy: Always
+          name: private-repo-patcher
+          resources:
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          volumeMounts:
+            - mountPath: /etc/patcher
+              name: patcher-config
+              readOnly: true
+      restartPolicy: OnFailure
+      serviceAccountName: private-repo-patcher
+      volumes:
+        - configMap:
+            name: private-repo-patcher
           name: patcher-config
-          readOnly: true
-  restartPolicy: OnFailure
-  serviceAccountName: private-repo-patcher
-  volumes:
-    - configMap:
-        name: private-repo-patcher
-      name: patcher-config
