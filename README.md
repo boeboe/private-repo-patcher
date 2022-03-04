@@ -1,6 +1,6 @@
 # Kubernetes private image repository patcher
 
-This contain image mitigates some shortcomings in certain kubernetes operators, namely the lack of being able to pull from private image repositories.
+This container image mitigates some shortcomings in certain kubernetes operators, namely the lack of being able to pull from private image repositories.
 
 As operators often create their own resources, outside of the control of infrastructure as code repositories, it is often a manual and tedious job to patch [ServiceAccount](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/#add-image-pull-secret-to-service-account) objects in order to allow for private image repository pulling.
 
